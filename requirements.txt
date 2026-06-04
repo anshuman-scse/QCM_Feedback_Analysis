@@ -6,3 +6,4 @@ matplotlib
 wordcloud
 textblob
 openpyxl
+xlsxwriter
