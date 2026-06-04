@@ -17,31 +17,37 @@ IGNORE_PATTERNS = [
     "registration","enrollment","mobile","phone","contact"
 ]
 
-STOPWORDS = {
-    "strongly",
-    "agree",
-    "disagree",
-    "neutral",
-    "nothing",
-    "none",
-    "na",
-    "n/a",
-    "nil",
-    "yes",
-    "no",
-    "course",
-    "courses",
-    "student",
-    "students",
-    "faculty",
-    "subject",
-    "objectives",
-    "outcomes",
-    "good",
-    "excellent",
-    "qcm",
-    "feedback"
-}
+from wordcloud import STOPWORDS as WC_STOPWORDS
+
+STOPWORDS = set(WC_STOPWORDS)
+
+STOPWORDS.update({
+
+    "strongly","agree","disagree","neutral",
+
+    "course","courses",
+    "faculty","student","students",
+    "subject","learning",
+
+    "would","could","should",
+    "also","more","one",
+
+    "the","and","for","with","from",
+    "that","this","these","those",
+
+    "have","has","had","been",
+    "were","was","are","is",
+
+    "into","onto","over","under",
+
+    "please","thank","thanks",
+
+    "good","excellent",
+
+    "objectives","outcomes",
+
+    "qcm","feedback"
+})
 
 EXCLUDE_COMMENTS = {"", ".", "-", "na", "n/a", "nil", "nothing", "none", "no"}
 
@@ -79,17 +85,37 @@ def detect_rating_columns(df):
     return cols
 
 def detect_text_columns(df):
-    cols=[]
-    likert={"strongly agree","agree","neutral","disagree","strongly disagree"}
-    for c in df.columns:
-        if should_ignore(c): continue
-        vals=df[c].dropna().astype(str)
-        if len(vals)==0: continue
-        avg=vals.str.len().mean()
-        likert_ratio=vals.str.lower().str.strip().isin(likert).mean()
-        if avg>10 and likert_ratio<0.3:
-            cols.append(c)
-    return cols
+
+    text_cols = []
+
+    OPEN_ENDED_KEYWORDS = [
+        "what",
+        "suggest",
+        "improve",
+        "challenge",
+        "support",
+        "effective",
+        "helped",
+        "feedback",
+        "concern",
+        "highlight",
+        "aspect"
+    ]
+
+    for col in df.columns:
+
+        if should_ignore(col):
+            continue
+
+        col_lower = str(col).lower()
+
+        if any(
+            keyword in col_lower
+            for keyword in OPEN_ENDED_KEYWORDS
+        ):
+            text_cols.append(col)
+
+    return text_cols
 
 st.title("Student Feedback Analytics Dashboard")
 
