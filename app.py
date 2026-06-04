@@ -214,10 +214,10 @@ if uploads:
         st.plotly_chart(fig,use_container_width=False)
 
     st.subheader("Average Scores Comparison Across Feedback Rounds")
-    
+
     comparison_df = questions.copy()
     
-    fig, ax = plt.subplots(figsize=(9,5))
+    fig, ax = plt.subplots(figsize=(12, 6))
     
     colors = {
         "QCM-1": "orange",
@@ -226,24 +226,40 @@ if uploads:
         "Final Feedback": "blue"
     }
     
-    for survey in comparison_df["Survey"].unique():
+    current_pos = 0
+    
+    for survey in ["QCM-1", "QCM-2", "QCM-3", "Final Feedback"]:
     
         subset = comparison_df[
             comparison_df["Survey"] == survey
-        ]
+        ].reset_index(drop=True)
+    
+        if len(subset) == 0:
+            continue
+    
+        x_positions = list(
+            range(
+                current_pos,
+                current_pos + len(subset)
+            )
+        )
     
         ax.plot(
-            range(len(subset)),
+            x_positions,
             subset["Score"],
             marker="o",
+            linewidth=2,
             label=f"{survey} ({len(subset)})",
             color=colors.get(survey)
         )
+    
+        current_pos += len(subset) + 2
     
     ax.axhline(
         y=4.5,
         linestyle="--",
         color="green",
+        alpha=0.7,
         label="Excellent"
     )
     
@@ -251,6 +267,7 @@ if uploads:
         y=4.0,
         linestyle="--",
         color="orange",
+        alpha=0.7,
         label="Good"
     )
     
@@ -258,12 +275,32 @@ if uploads:
         y=3.0,
         linestyle="--",
         color="red",
+        alpha=0.7,
         label="Satisfactory"
     )
     
-    ax.set_ylim(1,5)
-    ax.set_ylabel("Mean Score")
-    ax.legend()
+    ax.set_ylim(1, 5)
+    
+    ax.set_ylabel(
+        "Mean Score",
+        fontsize=11
+    )
+    
+    ax.set_xlabel("")
+    
+    ax.set_xticks([])
+    
+    ax.grid(
+        axis="y",
+        linestyle=":",
+        alpha=0.4
+    )
+    
+    ax.legend(
+        loc="lower left"
+    )
+    
+    plt.tight_layout()
     
     st.pyplot(fig)
     
@@ -290,49 +327,51 @@ if uploads:
                 continue
     
             for question in survey_comments["Question"].unique():
-    
-                st.markdown(f"**{question}**")
-    
-                text = " ".join(
-                    survey_comments[
-                        survey_comments["Question"] == question
-                    ]["Comment"]
-                )
-    
-                text = text.strip()
-    
-                if len(text) < 5:
-    
-                    st.info(
-                        "Insufficient textual feedback available."
+
+                with st.expander(question):
+            
+                    text = " ".join(
+                        survey_comments[
+                            survey_comments["Question"] == question
+                        ]["Comment"]
                     )
-    
-                    continue
-    
-                try:
-    
-                    wc = WordCloud(
-                        width=300,
-                        height=150,
-                        background_color="white",
-                        stopwords=STOPWORDS
-                    ).generate(text)
-    
-                    fig, ax = plt.subplots(
-                        figsize=(4, 2)
-                    )
-    
-                    ax.imshow(wc)
-    
-                    ax.axis("off")
-    
-                    st.pyplot(fig)
-    
-                except ValueError:
-    
-                    st.info(
-                        "No meaningful words available for this question."
-                    )
+            
+                    text = text.strip()
+            
+                    if len(text) < 5:
+            
+                        st.info(
+                            "Insufficient textual feedback available."
+                        )
+            
+                        continue
+            
+                    try:
+            
+                        wc = WordCloud(
+                            width=800,
+                            height=300,
+                            background_color="white",
+                            stopwords=STOPWORDS,
+                            max_words=40,
+                            collocations=False
+                        ).generate(text)
+            
+                        fig, ax = plt.subplots(
+                            figsize=(6, 2.8)
+                        )
+            
+                        ax.imshow(wc)
+            
+                        ax.axis("off")
+            
+                        st.pyplot(fig)
+            
+                    except ValueError:
+            
+                        st.info(
+                            "No meaningful words available for this question."
+                        )
     st.subheader("Executive Summary")
 
     if not comments.empty:
