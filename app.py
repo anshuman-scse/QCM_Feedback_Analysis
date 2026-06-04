@@ -313,7 +313,7 @@ if uploads:
     
                     wc = WordCloud(
                         width=300,
-                        height=200,
+                        height=150,
                         background_color="white",
                         stopwords=STOPWORDS
                     ).generate(text)
