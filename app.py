@@ -204,14 +204,14 @@ if uploads:
 
     st.subheader("QCM / Feedback Trend")
     fig=px.line(summary,x="Survey",y="AverageScore",markers=True)
-    st.plotly_chart(fig,use_container_width=True)
+    st.plotly_chart(fig,use_container_width=False)
 
     st.subheader("Question-wise Ratings")
     if not questions.empty:
         q=questions.groupby("Question")["Score"].mean().reset_index()
         q=q.sort_values("Score")
-        fig=px.bar(q,x="Score",y="Question",orientation="h",height=800)
-        st.plotly_chart(fig,use_container_width=True)
+        fig=px.bar(q,x="Score",y="Question",orientation="h")
+        st.plotly_chart(fig,use_container_width=False)
 
     st.subheader("Average Scores Comparison Across Feedback Rounds")
     
@@ -241,7 +241,7 @@ if uploads:
         )
     
     ax.axhline(
-        y=4.3,
+        y=4.5,
         linestyle="--",
         color="green",
         label="Excellent"
