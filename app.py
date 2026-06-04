@@ -217,8 +217,8 @@ if uploads:
 
     comparison_df = questions.copy()
     
-    fig, ax = plt.subplots(figsize=(12, 6))
-    
+    fig, ax = plt.subplots(figsize=(12, 5))
+    ax.tick_params( axis='x', labelsize=6 )
     colors = {
         "QCM-1": "orange",
         "QCM-2": "green",
@@ -317,7 +317,7 @@ if uploads:
     
         for survey in summary["Survey"]:
     
-            st.markdown(f"## {survey}")
+            st.markdown(f"### {survey}")
     
             survey_comments = comments[
                 comments["Survey"] == survey
@@ -328,15 +328,34 @@ if uploads:
     
             for question in survey_comments["Question"].unique():
 
-                with st.expander(question):
+                left_col, right_col = st.columns(
+                    [1.8, 2.2]
+                )
             
-                    text = " ".join(
-                        survey_comments[
-                            survey_comments["Question"] == question
-                        ]["Comment"]
+                text = " ".join(
+                    survey_comments[
+                        survey_comments["Question"] == question
+                    ]["Comment"]
+                )
+            
+                text = text.strip()
+            
+                with left_col:
+            
+                    st.markdown(
+                        f"""
+                        <div style="
+                        font-size:14px;
+                        padding-top:25px;
+                        padding-right:10px;
+                        ">
+                        <b>{question}</b>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
                     )
             
-                    text = text.strip()
+                with right_col:
             
                     if len(text) < 5:
             
@@ -349,28 +368,36 @@ if uploads:
                     try:
             
                         wc = WordCloud(
-                            width=800,
-                            height=300,
+                            width=1200,
+                            height=350,
                             background_color="white",
                             stopwords=STOPWORDS,
-                            max_words=40,
-                            collocations=False
+                            max_words=35,
+                            collocations=False,
+                            prefer_horizontal=0.9
                         ).generate(text)
             
                         fig, ax = plt.subplots(
-                            figsize=(6, 2.8)
+                            figsize=(4.8, 1.8)
                         )
             
                         ax.imshow(wc)
             
                         ax.axis("off")
             
-                        st.pyplot(fig)
+                        plt.tight_layout(
+                            pad=0.05
+                        )
+            
+                        st.pyplot(
+                            fig,
+                            clear_figure=True
+                        )
             
                     except ValueError:
             
                         st.info(
-                            "No meaningful words available for this question."
+                            "No meaningful words available."
                         )
     st.subheader("Executive Summary")
 
