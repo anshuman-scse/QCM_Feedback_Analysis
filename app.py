@@ -272,7 +272,7 @@ if uploads:
         s=comments["Sentiment"].value_counts().reset_index()
         s.columns=["Sentiment","Count"]
         fig=px.pie(s,names="Sentiment",values="Count")
-        st.plotly_chart(fig,use_container_width=True)
+        st.plotly_chart(fig,use_container_width=False)
 
     st.subheader("Word Clouds by Feedback Question")
 
