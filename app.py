@@ -217,7 +217,7 @@ if uploads:
 
     comparison_df = questions.copy()
     
-    fig, ax = plt.subplots(figsize=(11, 6))
+    fig, ax = plt.subplots(figsize=(11, 5))
     ax.tick_params( axis='x', labelsize=6 )
     colors = {
         "QCM-1": "orange",
