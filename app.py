@@ -46,7 +46,32 @@ STOPWORDS.update({
 
     "objectives","outcomes",
 
-    "qcm","feedback"
+    "qcm","feedback", "nothing",
+    "none",
+
+    "notes",
+    "note",
+
+    "aspects",
+    "aspect",
+
+    "process",
+
+    "helped",
+    "help",
+
+    "support",
+
+    "effective",
+    "effectively",
+
+    "improve",
+    "improvement",
+
+    "teaching",
+    "teacher",
+
+    "course"
 })
 
 EXCLUDE_COMMENTS = {"", ".", "-", "na", "n/a", "nil", "nothing", "none", "no"}
@@ -86,37 +111,36 @@ def detect_rating_columns(df):
 
 def detect_text_columns(df):
 
-    text_cols = []
+    OPEN_ENDED_PATTERNS = [
 
-    OPEN_ENDED_KEYWORDS = [
-        "what",
-        "suggest",
-        "improve",
-        "challenge",
-        "support",
-        "effective",
-        "helped",
-        "feedback",
-        "concern",
-        "highlight",
-        "aspect"
+        "what has helped",
+        "what specific changes",
+        "any suggestions",
+
+        "what aspects",
+        "what challenges",
+
+        "what were the most effective aspects",
+        "what suggestions would you like",
+
+        "what aspects of the teaching-learning process",
+        "what improvements would you suggest",
+        "academic challenges"
     ]
 
-    for col in df.columns:
+    cols = []
 
-        if should_ignore(col):
-            continue
+    for col in df.columns:
 
         col_lower = str(col).lower()
 
         if any(
-            keyword in col_lower
-            for keyword in OPEN_ENDED_KEYWORDS
+            pattern in col_lower
+            for pattern in OPEN_ENDED_PATTERNS
         ):
-            text_cols.append(col)
+            cols.append(col)
 
-    return text_cols
-
+    return cols
 st.title("Student Feedback Analytics Dashboard")
 
 uploads=st.file_uploader("Upload QCM / Feedback Excel Files",
@@ -189,6 +213,60 @@ if uploads:
         fig=px.bar(q,x="Score",y="Question",orientation="h",height=800)
         st.plotly_chart(fig,use_container_width=True)
 
+    st.subheader("Average Scores Comparison Across Feedback Rounds")
+    
+    comparison_df = questions.copy()
+    
+    fig, ax = plt.subplots(figsize=(14,7))
+    
+    colors = {
+        "QCM-1": "orange",
+        "QCM-2": "green",
+        "QCM-3": "red",
+        "Final Feedback": "blue"
+    }
+    
+    for survey in comparison_df["Survey"].unique():
+    
+        subset = comparison_df[
+            comparison_df["Survey"] == survey
+        ]
+    
+        ax.plot(
+            range(len(subset)),
+            subset["Score"],
+            marker="o",
+            label=f"{survey} ({len(subset)})",
+            color=colors.get(survey)
+        )
+    
+    ax.axhline(
+        y=4.3,
+        linestyle="--",
+        color="green",
+        label="Excellent"
+    )
+    
+    ax.axhline(
+        y=4.0,
+        linestyle="--",
+        color="orange",
+        label="Good"
+    )
+    
+    ax.axhline(
+        y=3.0,
+        linestyle="--",
+        color="red",
+        label="Satisfactory"
+    )
+    
+    ax.set_ylim(1,5)
+    ax.set_ylabel("Mean Score")
+    ax.legend()
+    
+    st.pyplot(fig)
+    
     st.subheader("Sentiment Analysis")
     if not comments.empty:
         s=comments["Sentiment"].value_counts().reset_index()
@@ -234,14 +312,14 @@ if uploads:
                 try:
     
                     wc = WordCloud(
-                        width=1000,
-                        height=400,
+                        width=500,
+                        height=200,
                         background_color="white",
                         stopwords=STOPWORDS
                     ).generate(text)
     
                     fig, ax = plt.subplots(
-                        figsize=(10, 4)
+                        figsize=(7, 2.5)
                     )
     
                     ax.imshow(wc)
