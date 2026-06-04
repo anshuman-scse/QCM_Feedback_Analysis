@@ -217,7 +217,7 @@ if uploads:
     
     comparison_df = questions.copy()
     
-    fig, ax = plt.subplots(figsize=(14,7))
+    fig, ax = plt.subplots(figsize=(10,5))
     
     colors = {
         "QCM-1": "orange",
@@ -312,14 +312,14 @@ if uploads:
                 try:
     
                     wc = WordCloud(
-                        width=500,
+                        width=400,
                         height=200,
                         background_color="white",
                         stopwords=STOPWORDS
                     ).generate(text)
     
                     fig, ax = plt.subplots(
-                        figsize=(7, 2.5)
+                        figsize=(5, 2)
                     )
     
                     ax.imshow(wc)
