@@ -198,63 +198,63 @@ if uploads:
 
     st.subheader("Word Clouds by Feedback Question")
 
-if not comments.empty:
-
-    for survey in summary["Survey"]:
-
-        st.markdown(f"## {survey}")
-
-        survey_comments = comments[
-            comments["Survey"] == survey
-        ]
-
-        if survey_comments.empty:
-            continue
-
-        for question in survey_comments["Question"].unique():
-
-            st.markdown(f"**{question}**")
-
-            text = " ".join(
-                survey_comments[
-                    survey_comments["Question"] == question
-                ]["Comment"]
-            )
-
-            text = text.strip()
-
-            if len(text) < 5:
-
-                st.info(
-                    "Insufficient textual feedback available."
-                )
-
+    if not comments.empty:
+    
+        for survey in summary["Survey"]:
+    
+            st.markdown(f"## {survey}")
+    
+            survey_comments = comments[
+                comments["Survey"] == survey
+            ]
+    
+            if survey_comments.empty:
                 continue
-
-            try:
-
-                wc = WordCloud(
-                    width=1000,
-                    height=400,
-                    background_color="white",
-                    stopwords=STOPWORDS
-                ).generate(text)
-
-                fig, ax = plt.subplots(
-                    figsize=(10, 4)
+    
+            for question in survey_comments["Question"].unique():
+    
+                st.markdown(f"**{question}**")
+    
+                text = " ".join(
+                    survey_comments[
+                        survey_comments["Question"] == question
+                    ]["Comment"]
                 )
-
-                ax.imshow(wc)
-
-                ax.axis("off")
-
-                st.pyplot(fig)
-
-            except ValueError:
-
-                st.info(
-                    "No meaningful words available for this question."
-                )
+    
+                text = text.strip()
+    
+                if len(text) < 5:
+    
+                    st.info(
+                        "Insufficient textual feedback available."
+                    )
+    
+                    continue
+    
+                try:
+    
+                    wc = WordCloud(
+                        width=1000,
+                        height=400,
+                        background_color="white",
+                        stopwords=STOPWORDS
+                    ).generate(text)
+    
+                    fig, ax = plt.subplots(
+                        figsize=(10, 4)
+                    )
+    
+                    ax.imshow(wc)
+    
+                    ax.axis("off")
+    
+                    st.pyplot(fig)
+    
+                except ValueError:
+    
+                    st.info(
+                        "No meaningful words available for this question."
+                    )
     st.subheader("Executive Summary")
 
     if not comments.empty:
