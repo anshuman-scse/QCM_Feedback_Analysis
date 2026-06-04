@@ -217,7 +217,7 @@ if uploads:
 
     comparison_df = questions.copy()
     
-    fig, ax = plt.subplots(figsize=(12, 5))
+    fig, ax = plt.subplots(figsize=(7, 4))
     ax.tick_params( axis='x', labelsize=6 )
     colors = {
         "QCM-1": "orange",
@@ -317,7 +317,7 @@ if uploads:
     
         for survey in summary["Survey"]:
     
-            st.markdown(f"### {survey}")
+            st.markdown(f" {survey}")
     
             survey_comments = comments[
                 comments["Survey"] == survey
