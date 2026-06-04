@@ -103,8 +103,13 @@ def detect_text_columns(df):
             continue
 
         avg_len = values.str.len().mean()
+        LIKERT_WORDS = {"strongly agree", "agree", "neutral", "disagree", "strongly disagree" }
 
-        if avg_len > 10:
+        values_lower = (values.str.lower().str.strip())
+
+        likert_ratio = values_lower.isin(LIKERT_WORDS).mean()
+
+        if avg_len > 10 and likert_ratio < 0.30:
             text_cols.append(col)
 
     return text_cols
@@ -208,6 +213,32 @@ if uploaded_files:
     comments_df = pd.DataFrame(all_comments)
 
     summary_df = pd.DataFrame(survey_summary)
+
+def get_order(name):
+
+    n = str(name).lower()
+
+    if "qcm-1" in n or "qcm1" in n:
+        return 1
+
+    elif "qcm-2" in n or "qcm2" in n:
+        return 2
+
+    elif "qcm-3" in n or "qcm3" in n:
+        return 3
+
+    elif "feedback" in n:
+        return 4
+
+    return 99
+
+summary_df["Order"] = summary_df["Survey"].apply(get_order)
+
+summary_df = (
+    summary_df
+    .sort_values("Order")
+    .reset_index(drop=True)
+)
 
     # --------------------------------------------
     # KPIs
@@ -343,12 +374,35 @@ if uploaded_files:
         text = " ".join(
             comments_df["Comment"]
         )
-
-        wc = WordCloud(
-            width=1200,
-            height=500,
-            background_color="white"
-        ).generate(text)
+        CUSTOM_STOPWORDS = {
+            "strongly",
+            "agree",
+            "disagree",
+            "neutral",
+        
+            "course",
+            "courses",
+        
+            "student",
+            "students",
+        
+            "faculty",
+        
+            "nothing",
+            "none",
+            "na",
+            "n/a",
+        
+            "yes",
+            "no",
+        
+            "qcm1",
+            "qcm2",
+            "qcm3",
+        
+            "feedback"
+        }
+        wc = WordCloud(width=1200, height=500, background_color="white", stopwords=CUSTOM_STOPWORDS).generate(text)
 
         fig, ax = plt.subplots(
             figsize=(12,5)
