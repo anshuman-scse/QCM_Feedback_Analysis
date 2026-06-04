@@ -217,7 +217,7 @@ if uploads:
 
     comparison_df = questions.copy()
     
-    fig, ax = plt.subplots(figsize=(7, 4))
+    fig, ax = plt.subplots(figsize=(11, 4))
     ax.tick_params( axis='x', labelsize=6 )
     colors = {
         "QCM-1": "orange",
@@ -227,6 +227,8 @@ if uploads:
     }
     
     current_pos = 0
+    all_xticks = []
+    all_labels = []
     
     for survey in ["QCM-1", "QCM-2", "QCM-3", "Final Feedback"]:
     
@@ -243,7 +245,14 @@ if uploads:
                 current_pos + len(subset)
             )
         )
-    
+        
+        all_xticks.extend(x_positions)
+
+        all_labels.extend([
+            str(q)[:35]
+            for q in subset["Question"]
+        ])
+        
         ax.plot(
             x_positions,
             subset["Score"],
@@ -288,7 +297,13 @@ if uploads:
     
     ax.set_xlabel("")
     
-    ax.set_xticks([])
+    ax.set_xticks(all_xticks)
+
+    ax.set_xticklabels(
+        all_labels,
+        rotation=90,
+        fontsize=5
+    )
     
     ax.grid(
         axis="y",
@@ -308,7 +323,16 @@ if uploads:
     if not comments.empty:
         s=comments["Sentiment"].value_counts().reset_index()
         s.columns=["Sentiment","Count"]
-        fig=px.pie(s,names="Sentiment",values="Count")
+        fig = px.pie(
+            s,
+            names="Sentiment",
+            values="Count"
+        )
+        
+        fig.update_traces(
+            textposition="inside",
+            textinfo="percent+label"
+        )
         st.plotly_chart(fig,use_container_width=False)
 
     st.subheader("Word Clouds by Feedback Question")
@@ -317,7 +341,7 @@ if uploads:
     
         for survey in summary["Survey"]:
     
-            st.markdown(f" {survey}")
+            st.markdown(f"### {survey}")
     
             survey_comments = comments[
                 comments["Survey"] == survey
@@ -329,7 +353,7 @@ if uploads:
             for question in survey_comments["Question"].unique():
 
                 left_col, right_col = st.columns(
-                    [1.8, 2.2]
+                    [1.4, 2.6]
                 )
             
                 text = " ".join(
@@ -346,7 +370,8 @@ if uploads:
                         f"""
                         <div style="
                         font-size:14px;
-                        padding-top:25px;
+                        padding-top:5px;
+                        margin-bottom:0px;
                         padding-right:10px;
                         ">
                         <b>{question}</b>
@@ -369,7 +394,7 @@ if uploads:
             
                         wc = WordCloud(
                             width=1200,
-                            height=350,
+                            height=220,
                             background_color="white",
                             stopwords=STOPWORDS,
                             max_words=35,
@@ -378,7 +403,7 @@ if uploads:
                         ).generate(text)
             
                         fig, ax = plt.subplots(
-                            figsize=(4.8, 1.8)
+                            figsize=(4.2, 1.2)
                         )
             
                         ax.imshow(wc)
