@@ -424,7 +424,7 @@ if uploads:
                         st.info(
                             "No meaningful words available."
                         )
-    st.subheader("Executive Summary")
+    st.subheader("QCM & Feedback Analysis: Summary")
 
     if not comments.empty:
         words=[]
